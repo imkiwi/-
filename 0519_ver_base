@@ -1,0 +1,103 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+// 模擬轉移條件
+bool X0 = false, X10 = false, X11 = false, X12 = false, X13 = false;
+bool X20 = false, X21 = false, X22 = false, X23 = false;
+bool X30 = false, X31 = false;
+bool X40 = false, X41 = false;
+
+// 狀態列舉
+typedef enum {
+  A0, A1, A2, A3, A4
+} State;
+
+State currentState = A0;
+
+// ========== Sub GRAFCET Function Prototypes ==========
+void A1_tracking();
+void A2_behavior_recognition();
+void A3_send_alert();
+void A4_reset();
+
+// ========== Action 控制器 ==========
+void action() {
+  if (X13) {
+    printf("[ACTION] Tracking complete → Executing A2\n");
+    A2_behavior_recognition();
+  }
+  else if (X23) {
+    printf("[ACTION] Behavior recognition complete → Executing A3\n");
+    A3_send_alert();
+  }
+  else if (X31) {
+    printf("[ACTION] Alert sent → Executing A4\n");
+    A4_reset();
+  }
+}
+
+// ========== Main FSM ==========
+int main() {
+  // 模擬初始化條件
+  X0 = true;
+
+  while (1) {
+    if (currentState == A0 && X0) {
+      printf("[TRANSITION] X0: System Init → A1\n");
+      currentState = A1;
+      A1_tracking();
+    }
+    else if (currentState == A1 && X13) {
+      currentState = A2;
+      A2_behavior_recognition();
+    }
+    else if (currentState == A2 && X23) {
+      currentState = A3;
+      A3_send_alert();
+    }
+    else if (currentState == A3 && X31) {
+      currentState = A4;
+      A4_reset();
+    }
+    else if (currentState == A4 && X41) {
+      currentState = A0;
+      printf("[TRANSITION] X41: Reset complete → A0\n");
+    }
+
+    action();
+    break; // 避免無限迴圈測試用
+  }
+
+  return 0;
+}
+
+// ========== Sub GRAFCET Functions ==========
+void A1_tracking() {
+  printf("[A1] Tracking start\n");
+  // 假設完成所有 tracking 過程...
+  X10 = X11 = X12 = X13 = true;
+}
+
+void A2_behavior_recognition() {
+  printf("[A2] Behavior recognition start\n");
+  // 模擬 tinyML 完成流程
+  X20 = X21 = X22 = X23 = true;
+}
+
+void A3_send_alert() {
+  printf("[A3] Sending alert...\n");
+  // 偵測異常並傳送通知
+  X30 = true;
+  X31 = true;
+}
+
+void A4_reset() {
+  printf("[A4] Resetting system...\n");
+  X40 = true;
+  X41 = true;
+  // 清除狀態回到初始
+  X0 = X10 = X11 = X12 = X13 = false;
+  X20 = X21 = X22 = X23 = false;
+  X30 = X31 = false;
+  X40 = X41 = false;
+} 
